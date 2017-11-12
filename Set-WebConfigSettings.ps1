@@ -2,6 +2,19 @@ param (
     [string]$webConfig = "c:\inetpub\wwwroot\Web.config"
 )
 
+## Apply web.config transform if exists
+
+$transformFile = "c:\web-config-transform\transform.config";
+
+if (Test-Path $transformFile) {
+    Write-Host "Running web.config transform..."
+    \WebConfigTransformRunner.1.0.0.1\Tools\WebConfigTransformRunner.exe $webConfig $transformFile $webConfig
+    Write-Host "Done!"
+}
+
+
+## Override app settings and connection string with environment variables
+
 $doc = (Get-Content $webConfig) -as [Xml];
 $modified = $FALSE;
 
