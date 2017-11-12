@@ -22,17 +22,17 @@ COPY sample-aspnet-4x .
 Assuming `C:\transform` contains a file named `transform.config`, apply the web.config transformation at container startup:
 
 ```
-PS> docker run -d -p 80:80 -v C:\transform:C:\web-config-transform sample-winforms-app
+PS> docker run -d -p 80:80 -v C:\transform:C:\web-config-transform sample-webforms-app
 ```
 
 Override an app setting named `PageTitle` and a connection string named `DefaultConnection` using environment variables:
 
 ```
-PS> docker run -d -p 80:80 -e APPSETTING_PageTitle=Foo -e CONNSTR_DefaultConnection="connection string from environment" sample-winforms-app
+PS> docker run -d -p 80:80 -e APPSETTING_PageTitle=Foo -e CONNSTR_DefaultConnection="connection string from environment" sample-webforms-app
 ```
 
 Apply web.config transform, then override the `PageTitle` app setting with an environment variable:
 
 ```
-PS> docker run -d -p 80:80 -e APPSETTING_PageTitle=Foo -v C:\transform:C:\web-config-transform sample-winforms-app
+PS> docker run -d -p 80:80 -e APPSETTING_PageTitle=Foo -v C:\transform:C:\web-config-transform sample-webforms-app
 ```
