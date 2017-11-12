@@ -3,6 +3,7 @@ param (
 )
 
 $doc = (Get-Content $webConfig) -as [Xml];
+$modified = $FALSE;
 
 $appSettingPrefix = "APPSETTING_";
 $connectionStringPrefix = "CONNSTR_";
@@ -14,6 +15,7 @@ Get-ChildItem env:* | ForEach-Object {
         if ($appSetting) {
             $appSetting.value = $_.Value;
             Write-Host "Replaced appSetting" $_.Key $_.Value;
+            $modified = $TRUE;
         }
     }
     if ($_.Key.StartsWith($connectionStringPrefix)) {
@@ -22,8 +24,11 @@ Get-ChildItem env:* | ForEach-Object {
         if ($connStr) {
             $connStr.connectionString = $_.Value;
             Write-Host "Replaced connectionString" $_.Key $_.Value;
+            $modified = $TRUE;
         }
     }
 }
 
-$doc.Save($webConfig);
+if ($modified) {
+    $doc.Save($webConfig);
+}
