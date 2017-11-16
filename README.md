@@ -40,3 +40,9 @@ PS> docker run -d -p 80:80 -e APPSETTING_PageTitle=Foo -v C:\transform:C:\web-co
 ## Docker image
 
 Try out this image here: https://hub.docker.com/r/anthonychu/aspnet/
+
+## More information
+
+Check out my blog posts for more:
+- [Overriding Web.config Settings with Environment Variables in Containerized ASP.NET Applications (with No Code Changes)](https://anthonychu.ca/post/overriding-web-config-settings-environment-variables-containerized-aspnet-apps/)
+- [ASP.NET Web.config Transforms in Windows Containers - Revisited](https://anthonychu.ca/post/aspnet-web-config-transforms-windows-containers-revisited/)
