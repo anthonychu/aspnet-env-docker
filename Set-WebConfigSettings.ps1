@@ -1,5 +1,6 @@
 param (
-    [string]$webConfig = "c:\inetpub\wwwroot\Web.config"
+    [string]$webConfig = "c:\inetpub\wwwroot\Web.config",
+    [string]$secretsPath = $null
 )
 
 ## Apply web.config transform if exists
@@ -21,19 +22,19 @@ $modified = $FALSE;
 $appSettingPrefix = "APPSETTING_";
 $connectionStringPrefix = "CONNSTR_";
 
-function UpdateAppSettingIfMatches($key, $value) {
+function UpdateAppSettingIfMatches([string]$key, [string]$value) {
     $appSetting = $doc.configuration.appSettings.add | Where-Object {$_.key -eq $key};
     if ($appSetting) {
         $appSetting.value = $value;
-        Write-Host "Replaced appSetting" $_.Key $value;
+        Write-Host "Replaced appSetting" $key $value;
         $script:modified = $TRUE;
     }
 }
-function UpdateConnectionStringIfMatches($key, $value) {
+function UpdateConnectionStringIfMatches([string]$key, [string]$value) {
     $connStr = $doc.configuration.connectionStrings.add | Where-Object {$_.name -eq $key};
     if ($connStr) {
         $connStr.connectionString = $value;
-        Write-Host "Replaced connectionString" $_.Key $value;
+        Write-Host "Replaced connectionString" $key $value;
         $script:modified = $TRUE;
     }
 }
@@ -47,6 +48,20 @@ Get-ChildItem "env:$($connectionStringPrefix)*" | ForEach-Object {
     $key = $_.Key.Substring($connectionStringPrefix.Length);
     $value = $_.Value;
     UpdateConnectionStringIfMatches $key $value
+}
+
+if ((-not [string]::IsNullOrEmpty($secretsPath)) `
+        -and (Test-Path $secretsPath)) {
+    Get-ChildItem "$secretsPath\$($appSettingPrefix)*" | ForEach-Object {
+        $key = $_.Name.Substring($appSettingPrefix.Length);
+        $value = Get-Content $_.FullName
+        UpdateAppSettingIfMatches $key $value
+    }
+    Get-ChildItem "$secretsPath\$($connectionStringPrefix)*" | ForEach-Object {
+        $key = $_.Name.Substring($connectionStringPrefix.Length);
+        $value = Get-Content $_.FullName
+        UpdateConnectionStringIfMatches $key $value
+    }
 }
 
 if ($modified) {
