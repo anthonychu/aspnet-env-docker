@@ -39,23 +39,12 @@ function UpdateConnectionStringIfMatches([string]$key, [string]$value) {
     }
 }
 
+
+
 Get-ChildItem "env:$($appSettingPrefix)*" | ForEach-Object {
     $key = $_.Key.Substring($appSettingPrefix.Length);
     $value = $_.Value;
     UpdateAppSettingIfMatches $key $value
-
-    # Find and replace xpath
-    # Pass an encoded xpath and attribute to set =>  UrlEncode(<xpath>~<attr>) = VALUE
-    if ($_.Key.IndexOf('~') -gt 0) {
-        Add-Type -AssemblyName System.Web
-        $key = [System.Web.HttpUtility]::UrlDecode($_.key)
-        $index = $key.IndexOf('~')
-        $xpath = $key.substring(0, $index);
-        $attr = $key.substring($index + 1);
-        $doc.SelectSingleNode($xpath).SetAttribute($attr, $_.Value);
-        Write-Host "Replaced xPath" $xpath $_.Value;
-        $script:modified = $TRUE;
-    }
 }
 Get-ChildItem "env:$($connectionStringPrefix)*" | ForEach-Object {
     $key = $_.Key.Substring($connectionStringPrefix.Length);
@@ -74,6 +63,21 @@ if ((-not [string]::IsNullOrEmpty($secretsPath)) `
         $key = $_.Name.Substring($connectionStringPrefix.Length);
         $value = Get-Content $_.FullName
         UpdateConnectionStringIfMatches $key $value
+    }
+}
+
+Get-ChildItem "env:*~*" | ForEach-Object {
+    # Find and replace xpath
+    # Pass an encoded xpath and attribute to set =>  UrlEncode(<xpath>~<attr>) = VALUE
+    if ($_.Key.IndexOf('~') -gt 0) {
+        Add-Type -AssemblyName System.Web
+        $key = [System.Web.HttpUtility]::UrlDecode($_.key)
+        $index = $key.IndexOf('~')
+        $xpath = $key.substring(0, $index);
+        $attr = $key.substring($index + 1);
+        $doc.SelectSingleNode($xpath).SetAttribute($attr, $_.Value);
+        Write-Host "Replaced xPath" $xpath $_.Value;
+        $script:modified = $TRUE;
     }
 }
 
