@@ -1,0 +1,5 @@
+FROM mcr.microsoft.com/dotnet/runtime:5.0 as runtime
+
+WORKDIR /app
+COPY . .
+ENTRYPOINT ["/app/Startup.sh"]
